@@ -380,7 +380,6 @@ def prod_per_country(types: str, country: str, year: int):
     count_type = prod_per_country.type.count()
 
 
-    print(prod_per_country.head())
     return {
         "country" : prod_per_country.country[0],
         "year" : year,
