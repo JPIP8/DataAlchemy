@@ -1,7 +1,9 @@
-# # Loading data
-# #### Importing .csv files
+# ####################################################################################################################
+# ################################                                             #######################################
+# ################################     Loading data - Importing .csv files     #######################################
+# ################################                                             #######################################
+# ####################################################################################################################
 
-#
 # Importing libraries:
 import pandas as pd
 from datetime import datetime
@@ -25,19 +27,28 @@ dfh = pd.read_csv("hulu_titles.csv")
 dfn = pd.read_csv("netflix_titles.csv")
 
 
-# # Data Transformation
-# #### 1. Generate ID field:
+# ####################################################################################################################
+# ########################################                             ###############################################
+# ########################################     Data Transformation     ###############################################
+# ########################################                             ###############################################
+# ####################################################################################################################
+
+### 1. Generate ID field:
 #     Each record's ID should consist of the first letter of the platform name, followed by the show_id already present in the dataset (e.g., "as123" for Amazon titles).
-# #### 2. Fix Nulls:
+
+### 2. Fix Nulls:
 #     Replace null values in the "rating" field with the string "G" (which corresponds to a maturity rating of "general for all audiences").
-# #### 3. Normalize Dates:
+
+### 3. Normalize Dates:
 #     If present, dates should be in the format "YYYY-mm-dd".
-# #### 4. Normalize Case [camelCase]:
+
+### 4. Normalize Case [camelCase]:
 #     All text fields should be in lower case, without exception.
-# #### 5. Transform the "duration" field:
+
+### 5. Transform the "duration" field:
 #     The "duration" field should be split into two fields: "duration_int", which should be an integer representing the duration, and "duration_type", which should be a string indicating the unit of measurement ("min" for minutes or "season" for TV seasons).
 
-#
+
 # ############################################################################
 # ######################### 1. GENERATE ID FIELDS  ###########################
 # ############################################################################
@@ -47,7 +58,6 @@ dfn = pd.read_csv("netflix_titles.csv")
 # Creating one main data frame: Data Frame Ratings [dfR]
 
 dfR = pd.concat([df1, df2, df3, df4, df5, df6, df7, df8], ignore_index = True)
-# dfR.tail()
 
 # Creating a unique ID for the dataframes so, when I merge them, there are not going to be 'show_id' duplicates.
 dfa = dfa.assign(id = 'a' + dfa['show_id'].astype(str))
@@ -66,7 +76,6 @@ cols = ['id'] + [col for col in cols if col != 'id']
 dfP = dfP.reindex(columns=cols)
 
 dfP.head(3)
-# dfP.tail()
 
 #
 # ############################################################################
@@ -90,10 +99,7 @@ dfP['rating'] = dfP['rating'].fillna('G')
 # Replace the 'duration' values in the 'rating' column with a string
 dfP.loc[dfP['rating'].str.contains(' min', na=False), 'rating'] = 'Unknown'
 
-# print(dfP['rating'].unique())       # Now there are no values from 'duration' [for example: '136 min']
-dfP.head(3)
 
-#
 # ############################################################################
 # ########################### 3. NORMALIZE DATES  ############################
 # ############################################################################
@@ -105,9 +111,8 @@ dfP['date_added'] = dfP['date_added'].str.strip()
 # Now that I don't have white spaces, I can change the format.
 dfP['date_added'] = pd.to_datetime(dfP['date_added'], format='%B %d, %Y').dt.strftime('%Y-%m-%d')
 
-dfP.head(3)
 
-#
+
 # ############################################################################
 # ######################### 4. NORMALIZE lowercase  ##########################
 # ############################################################################
@@ -121,9 +126,8 @@ dfP['duration'] = dfP['duration'].str.lower()
 dfP['listed_in'] = dfP['listed_in'].str.lower()
 dfP['description'] = dfP['description'].str.lower()
 
-dfP.head(3)
 
-#
+
 # ############################################################################
 # ################### 5. TRANSFORM THE 'DURATION' FIELD  #####################
 # ############################################################################
@@ -155,11 +159,6 @@ dfP['duration_int'] = dfP['duration_int'].astype(int)
 dfP['cast'].fillna('unknown', inplace=True)
 
 
-dfP.head(3)
-# dfP.info()
-
-
-#
 # ############################################################################
 # #################### 6. TRANSFORMATIONS - BONUS TRACK ######################
 # ############################################################################
@@ -193,25 +192,29 @@ score = score.rename(columns = {'movieId' : 'id'})
 df_score = pd.merge(dfP, score, on = 'id', how = 'outer')
 
 
+# ####################################################################################################################
+# ######################################                                 #############################################
+# ######################################         Development API         #############################################
+# ######################################                                 #############################################
+# ####################################################################################################################
 
-# # Development API:
-# ## I proposed to make the company's data available using the FastAPI framework, generating different endpoints that will be consumed in the API.
-# 
-# #### Create 6 functions (remember that each one must have a decorator for each one@app.get('/'))):
-# 
+### I proposed to make the company's data available using the FastAPI framework, generating different endpoints that will be consumed in the API.
+### Create 6 functions (remember that each one must have a decorator for each one@app.get('/'))):
+
 # 1. Movie (only movie, not series, or documentaries, etc.) with the longest duration by year, platform, and duration type. The function must be called get_max_duration(year, platform, duration_type) and must return only the string of the movie name.
-# 
+
 # 2. Number of movies (only movies, not series or documentaries, etc.) by platform, with a score higher than XX in a certain year. The function must be called get_score_count(platform, scored, year) and must return an int, with the total number of movies that meet the requested criteria.
-# 
+
 # 3. Number of movies (only movies, not series or documentaries, etc.) by platform. The function must be called get_count_platform(platform) and must return an int, with the total number of movies on that platform. The platforms must be named Amazon, Netflix, Hulu, Disney.
-# 
+
 # 4. Actor that appears the most by platform and year. The function must be called get_actor(platform, year) and must return only the string with the name of the actor that appears the most by the given platform and year.
-# 
+
 # 5. The quantity of content/products (everything available on streaming) that was published by country and year. The function must be called prod_per_county(type, country, year) and should return the type of content (movie, series, documentary) by country and year in a dictionary with the variables named 'country' (name of the country), 'year' (year), 'movie' (type of content).
-# 
+
 # 6. The total quantity of content/products (everything available on streaming, series, documentaries, movies, etc.) according to the given audience rating (for which audience was the movie classified). The function must be called get_contents(rating) and must return the total number of content with that audience rating.
 
-#
+###   API TEST   ###
+
 # 1. Importing FASTAPI
 from fastapi import FastAPI
 
@@ -228,10 +231,6 @@ async def root():
 
 
 
-#
-dfP.head(3)
-
-#
 # ############################################################################
 # ########################## 1. get_max_duration  ############################
 # ############################################################################
@@ -306,10 +305,9 @@ async def get_max_duration(year: int, platform: str, duration_type: str):
 
 
 test = get_max_duration(2014, 'amazon', 'min')
-# print(test)
 
 
-#
+
 # ############################################################################
 # ########################## 2. get_score_count  #############################
 # ############################################################################
@@ -387,7 +385,7 @@ async def get_score_count(platform: str, scored: float, year: int):
 get_score_count('amaZon', 3.6, 2014)
 
 
-#
+
 # ############################################################################
 # ######################### 3. get_count_platform  ###########################
 # ############################################################################
@@ -432,7 +430,7 @@ get_count_platform('az')
 
 
 
-#
+
 # ############################################################################
 # ############################# 4. get_actor  ################################
 # ############################################################################
@@ -503,15 +501,10 @@ async def get_actor(platform: str, year: int):
 
     return {'actorName': actorName}
 
-# Second max key: anne-marie newland
-# Second max value: 5
+
 get_actor('amazon', 2014)
 
-#
-dfP.head()
-# dfP.type.unique()
 
-#
 
 # ############################################################################
 # ########################## 5. prod_per_country  #############################
@@ -571,10 +564,7 @@ async def prod_per_country(types: str, country: str, year: int):
 
 prod_per_country('movie', 'indi', 2021)
 
-#
-dfP.head(3)
 
-#
 # ############################################################################
 # ########################### 6. get_contents  ###############################
 # ############################################################################
