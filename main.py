@@ -377,7 +377,7 @@ def prod_per_country(types: str, country: str, year: int):
     # prod_per_country = mask_country_type_year[['type', 'country', 'release_year']].reset_index(drop=True).to_dict('index')
 
     prod_per_country = mask_country_type_year[['type', 'country', 'release_year']].reset_index(drop=True)
-    count_type = prod_per_country.type.count()
+    count_type = int(prod_per_country.type.count())
 
 
     return {
