@@ -1,6 +1,16 @@
 # DataAlchemy
 Project involving Data Engineering, Data Science, and Machine Learning.
 
+Files:
+ - ETL.py: Cleanning process of the data.
+ - P00.ipynb: The complete proyect in a jupyter notebook. It is more friendly to read.
+ - README.md: The readme file.
+ - data.csv: Is the cleaned data file to use then in the machine learning function.
+ - main.py: Where the functions are located and is read by the server and deployed in the cloud.
+ - requirements.txt: You can ignore this
+
+ 
+
 # Index
 
 ## 1. Load the data
