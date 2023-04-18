@@ -10,9 +10,12 @@ Important Files:
  
  DataSets:
  - data.csv: Is the cleaned data file to use then in the machine learning function.
+ - indx_4_ML.csv: Is the filtered data for the Machine Learning engine
  
  Files:
 - requirements.txt: You can ignore this
+- Count_vectorizer.joblib: You can ignore this
+- cosine_similarity.joblib: You can ignore this
  
 
 # Index
