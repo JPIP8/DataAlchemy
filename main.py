@@ -406,50 +406,50 @@ def get_contents(rating: str):
 print(get_contents('g'))
 
 
-# ############################################################################
-# ######################## 7. get_recommendation  ############################
-# ############################################################################
+# # ############################################################################
+# # ######################## 7. get_recommendation  ############################
+# # ############################################################################
 
-# import pickle
+# # import pickle
 
-import joblib
+# import joblib
 
-# 7. This consists of recommending movies to the users based on similar movies, so the similarity score between
-# that movie and the rest of the movies must be found. They will be ordered according to the score and a Python
-# list with 5 values will be returned, each being the string of the name of the movies with the highest score,
-# in descending order.
-
-
-
-@app.get("/get_recommendation/{title}")
-def get_recommendation(title: str):
-
-    # Loading the files:
-    indx = pd.read_csv("indx_4_ML.csv")
-
-
-    # Loading the cosine similarity matrix
-    accurate_cosine_sim = joblib.load('cosine_similarity.joblib')
-
-    idx = indx[indx['title'] == title].index[0]
+# # 7. This consists of recommending movies to the users based on similar movies, so the similarity score between
+# # that movie and the rest of the movies must be found. They will be ordered according to the score and a Python
+# # list with 5 values will be returned, each being the string of the name of the movies with the highest score,
+# # in descending order.
 
 
 
-    # Creating score for similar movies
-    similarScores = list(enumerate(accurate_cosine_sim[idx]))
+# @app.get("/get_recommendation/{title}")
+# def get_recommendation(title: str):
 
-    # Sorting that score
-    similarScores = sorted(similarScores, key = lambda x : x[1], reverse = True)
+#     # Loading the files:
+#     indx = pd.read_csv("indx_4_ML.csv")
 
-    # Taking the score of the first 5 movies
-    similarScores = similarScores[1:6]
 
-    # Finding the index from those movies
-    movieIndex = [i[0] for i in similarScores]
-    recommendationTitles =  df.title.iloc[movieIndex]
-    recommendationTitles = recommendationTitles.tolist()
+#     # Loading the cosine similarity matrix
+#     accurate_cosine_sim = joblib.load('cosine_similarity.joblib')
 
-    return {"recommendation" : recommendationTitles}
+#     idx = indx[indx['title'] == title].index[0]
 
-print(get_recommendation('sweet girl'))
+
+
+#     # Creating score for similar movies
+#     similarScores = list(enumerate(accurate_cosine_sim[idx]))
+
+#     # Sorting that score
+#     similarScores = sorted(similarScores, key = lambda x : x[1], reverse = True)
+
+#     # Taking the score of the first 5 movies
+#     similarScores = similarScores[1:6]
+
+#     # Finding the index from those movies
+#     movieIndex = [i[0] for i in similarScores]
+#     recommendationTitles =  df.title.iloc[movieIndex]
+#     recommendationTitles = recommendationTitles.tolist()
+
+#     return {"recommendation" : recommendationTitles}
+
+# print(get_recommendation('sweet girl'))
 

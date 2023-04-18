@@ -215,58 +215,58 @@ df_score = pd.merge(dfP, score, on = 'id', how = 'outer')
 df_score.to_csv('data.csv', index = False)
 
 
-# ############################################################################
-# ######################## 8. RECOMMENDATION PROCESS #########################
-# ############################################################################
+# # ############################################################################
+# # ######################## 8. RECOMMENDATION PROCESS #########################
+# # ############################################################################
 
-import pickle as pck
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-import joblib
-
-
-
-# Simplifying the dataset
-f = ['listed_in', 'director', 'cast', 'description', 'title']
-df_filters = df_score[f].copy()
-
-# Dropping duplicate titles
-df_filters = df_filters.drop_duplicates(subset=['title']) 
-
-
-# I am going to create a "soup" with all the information to later analyze it.
-def create_soup(info):
-    return str(info['director']) + ' ' + str(info['cast']) + ' ' + str(info['listed_in']) + ' ' + str(info['description'])
-
-
-# Creating a column name 'soup' that will have all the info
-df_filters['soup'] = df_filters.apply(create_soup, axis = 1)
-
-
-# Creating the matrix
-count = CountVectorizer(stop_words = 'english')
-count_matrix = count.fit_transform(df_filters.soup)
+# import pickle as pck
+# from sklearn.feature_extraction.text import CountVectorizer
+# from sklearn.metrics.pairwise import cosine_similarity
+# import joblib
 
 
 
-# Saving the count vectorizer - For later use in the ML algo
-joblib.dump(count, 'count_vectorizer.joblib')
+# # Simplifying the dataset
+# f = ['listed_in', 'director', 'cast', 'description', 'title']
+# df_filters = df_score[f].copy()
 
-# print(f"{count_matrix.shape} is the shape of matrix.")
-
-
-# Compute the similarities
-accurate_cosine_sim = cosine_similarity(count_matrix, count_matrix)
-
-# Saving the cosine similarity matrix - For later use in the ML algo
-joblib.dump(accurate_cosine_sim, 'cosine_similarity.joblib')
+# # Dropping duplicate titles
+# df_filters = df_filters.drop_duplicates(subset=['title']) 
 
 
-df_filters = df_filters.reset_index()
-# df_filters = pd.Series(df_filters.index, index=df_filters.title)
-df_filters = pd.Series(df_filters.title, index=df_filters.index)
-df_filters.to_csv('indx_4_ML.csv', index = False)
-# print(df_filters.head())
+# # I am going to create a "soup" with all the information to later analyze it.
+# def create_soup(info):
+#     return str(info['director']) + ' ' + str(info['cast']) + ' ' + str(info['listed_in']) + ' ' + str(info['description'])
+
+
+# # Creating a column name 'soup' that will have all the info
+# df_filters['soup'] = df_filters.apply(create_soup, axis = 1)
+
+
+# # Creating the matrix
+# count = CountVectorizer(stop_words = 'english')
+# count_matrix = count.fit_transform(df_filters.soup)
+
+
+
+# # Saving the count vectorizer - For later use in the ML algo
+# joblib.dump(count, 'count_vectorizer.joblib')
+
+# # print(f"{count_matrix.shape} is the shape of matrix.")
+
+
+# # Compute the similarities
+# accurate_cosine_sim = cosine_similarity(count_matrix, count_matrix)
+
+# # Saving the cosine similarity matrix - For later use in the ML algo
+# joblib.dump(accurate_cosine_sim, 'cosine_similarity.joblib')
+
+
+# df_filters = df_filters.reset_index()
+# # df_filters = pd.Series(df_filters.index, index=df_filters.title)
+# df_filters = pd.Series(df_filters.title, index=df_filters.index)
+# df_filters.to_csv('indx_4_ML.csv', index = False)
+# # print(df_filters.head())
 
 
 
