@@ -28,6 +28,24 @@ Important Files:
 
 ## 3. Development of the API
  Creation of an API. I proposed to make the company's data available using the FastAPI framework, generating different endpoints that will be consumed in the API.
+ This is my working API: https://api-juanpabloidrovo.onrender.com/docs#/
+ 
+ ### Allow me to explain the API calls, we have the following:
+ 
+  - Get Max Duration: returns the longest movie of that year. Parameters:
+    * year - the year of the movie
+    * platform - the platform that has the movie
+    * duration_type - minutes or seasons (in this case, only min)
+    
+  - Get Score Count: returns the number of movies that scored higher that the score of the user's input. Parameters:
+    * platform - the platform that has the movie
+    * scored - the score that the user wants
+    * year - the year of the movie
+  
+  - Get Count Platform:
+  - Get Actor:
+  - Get Prod Per Country:
+  - Get Contents:
 
 ## 4. Exploratory Data Analisys [EDA]
  Investigate the relationships between the variables of the datasets, see if there are any outliers or anomalies (which do not necessarily have to be errors), and look for any interesting patterns that are worth exploring in a further analysis.
