@@ -410,91 +410,46 @@ print(get_contents('g'))
 # ######################## 7. get_recommendation  ############################
 # ############################################################################
 
+# import pickle
+
+import joblib
+
 # 7. This consists of recommending movies to the users based on similar movies, so the similarity score between
 # that movie and the rest of the movies must be found. They will be ordered according to the score and a Python
 # list with 5 values will be returned, each being the string of the name of the movies with the highest score,
 # in descending order.
 
-# # Simplifying the dataset
-# f = ['listed_in', 'director', 'cast', 'description', 'title']
-# df_filters = df[f].copy()
-
-# # Cleaning the data once more
-
-# def cleanD(data):
-#     data = str(data).lower().replace(" ", "")
-#     return data
 
 
-# for feature in f:
-#     df_filters[feature] = df_filters[feature].apply(cleanD)
+@app.get("/get_recommendation/{title}")
+def get_recommendation(title: str):
+
+    # Loading the files:
+    indx = pd.read_csv("indx_4_ML.csv")
 
 
-# df_filters.head(3)
+    # Loading the cosine similarity matrix
+    accurate_cosine_sim = joblib.load('cosine_similarity.joblib')
+
+    idx = indx[indx['title'] == title].index[0]
 
 
-# # I am going to create a "soup" with all the information to later analyze it.
 
-# # def create_soup(info):
-# #     return info['director'] + ' ' + info['cast'] + ' ' + info['listed_in'] + ' ' + info['description']
+    # Creating score for similar movies
+    similarScores = list(enumerate(accurate_cosine_sim[idx]))
 
-# def create_soup(info):
-#     return str(info['director']) + ' ' + str(info['cast']) + ' ' + str(info['listed_in']) + ' ' + str(info['description']) #CHPT
+    # Sorting that score
+    similarScores = sorted(similarScores, key = lambda x : x[1], reverse = True)
 
+    # Taking the score of the first 5 movies
+    similarScores = similarScores[1:6]
 
-# # Creating a column name 'soup' that will have all the info
-# df_filters['soup'] = df_filters.apply(create_soup, axis = 1)
+    # Finding the index from those movies
+    movieIndex = [i[0] for i in similarScores]
+    recommendationTitles =  df.title.iloc[movieIndex]
+    recommendationTitles = recommendationTitles.tolist()
 
-# df_filters.head()
+    return {"recommendation" : recommendationTitles}
 
-
-# # Similar steps from the last recommendation engine, but slightly different
-
-# # Importing useful libraries
-# from sklearn.feature_extraction.text import CountVectorizer
-
-# # Creating the matrix
-# count = CountVectorizer(stop_words = 'english')
-# count_matrix = count.fit_transform(df_filters.soup)
-
-# print(f"{count_matrix.shape} is the shape of matrix.")
-
-
-# # Compute the similarities
-# # IMport libraries
-
-# from sklearn.metrics.pairwise import cosine_similarity
-
-# accurate_cosine_sim = cosine_similarity(count_matrix, count_matrix)
-
-# df_filters.head()
-
-
-# # Reset the index for future
-# df_filters = df_filters.reset_index()
-# indx = pd.Series(df_filters.index, index = df_filters.title)
-
-# @app.get("/get_recommendation/{title}")
-# def get_recommendation(title: str, cosine_sim = accurate_cosine_sim):
-#     idx = indx[title]
-#     # Creating score for similar movies
-#     similarScores = list(enumerate(cosine_sim[idx]))
-
-#     # Sorting that score
-#     similarScores = sorted(similarScores, key = lambda x : x[1], reverse = True)
-
-#     # Taking the score of the first 5 movies
-#     similarScores = similarScores[1:6]
-
-#     # Finding the index from those movies
-#     movieIndex = [i[0] for i in similarScores]
-
-#     recommendationTitles =  df.title.iloc[movieIndex]
-#     recommendationTitles = recommendationTitles.tolist()
-
-#     # type(recommendationTitles)
-
-#     return {"recommendation" : recommendationTitles}
-
-# print(get_recommendation('xxx'))
+print(get_recommendation('sweet girl'))
 

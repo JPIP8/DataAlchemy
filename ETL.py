@@ -61,7 +61,6 @@ dfn = pd.read_csv("netflix_titles.csv")
 # Creating one main data frame: Data Frame Ratings [dfR]
 
 dfR = pd.concat([df1, df2, df3, df4, df5, df6, df7, df8], ignore_index = True)
-# dfR.tail()
 
 # Creating a unique ID for the dataframes so, when I merge them, there are not going to be 'show_id' duplicates.
 dfa = dfa.assign(id = 'a' + dfa['show_id'].astype(str))
@@ -151,12 +150,10 @@ dfP.loc[dfP['duration_type'].str.contains('min', na = False), 'duration_type'] =
 dfP.loc[dfP['duration_type'].str.contains('season', na = False), 'duration_type'] = 'season'
 
 # Setting the 'duration_int' column
-# dfP['duration_int'] = dfP['duration_int'].str.replace(r'[^0-9]', '')
 dfP['duration_int'] = dfP['duration_int'].apply(lambda x: ''.join(filter(str.isdigit, str(x))))
 dfP['duration_int'] = dfP['duration_int'].str.strip()
 
 # Setting the 'duration_int' type as integer
-# dfP['duration_int'] = pd.to_numeric(dfP['duration_int'].replace('', '0'))
 dfP['duration_int'] = dfP['duration_int'].fillna('').replace('', 0)
 dfP['duration_int'] = dfP['duration_int'].astype(int)
 
@@ -187,6 +184,12 @@ dfP['rating'].replace({'13+': 'PG-13', 'ALL': 'g', 'ALL_AGES': 'g', 'AGES_18_': 
 dfP['rating'] = dfP['rating'].str.lower()
 
 
+# Setting missing values to "unknown"
+dfP['director'] = dfP['director'].fillna("unknown")
+dfP['country'] = dfP['country'].fillna("unknown")
+dfP['date_added'] = dfP['date_added'].fillna("unknown")
+
+
 # Change the name of rating to score
 dfR = dfR.rename(columns={'rating': 'score'})
 
@@ -210,3 +213,66 @@ df_score = pd.merge(dfP, score, on = 'id', how = 'outer')
 # ############################################################################
 
 df_score.to_csv('data.csv', index = False)
+
+
+# ############################################################################
+# ######################## 8. RECOMMENDATION PROCESS #########################
+# ############################################################################
+
+import pickle as pck
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import joblib
+
+
+
+# Simplifying the dataset
+f = ['listed_in', 'director', 'cast', 'description', 'title']
+df_filters = df_score[f].copy()
+
+# Dropping duplicate titles
+df_filters = df_filters.drop_duplicates(subset=['title']) 
+
+
+# I am going to create a "soup" with all the information to later analyze it.
+def create_soup(info):
+    return str(info['director']) + ' ' + str(info['cast']) + ' ' + str(info['listed_in']) + ' ' + str(info['description'])
+
+
+# Creating a column name 'soup' that will have all the info
+df_filters['soup'] = df_filters.apply(create_soup, axis = 1)
+
+
+# Creating the matrix
+count = CountVectorizer(stop_words = 'english')
+count_matrix = count.fit_transform(df_filters.soup)
+
+
+
+# Saving the count vectorizer - For later use in the ML algo
+joblib.dump(count, 'count_vectorizer.joblib')
+
+# print(f"{count_matrix.shape} is the shape of matrix.")
+
+
+# Compute the similarities
+accurate_cosine_sim = cosine_similarity(count_matrix, count_matrix)
+
+# Saving the cosine similarity matrix - For later use in the ML algo
+joblib.dump(accurate_cosine_sim, 'cosine_similarity.joblib')
+
+
+df_filters = df_filters.reset_index()
+# df_filters = pd.Series(df_filters.index, index=df_filters.title)
+df_filters = pd.Series(df_filters.title, index=df_filters.index)
+df_filters.to_csv('indx_4_ML.csv', index = False)
+# print(df_filters.head())
+
+
+
+
+
+
+
+
+
