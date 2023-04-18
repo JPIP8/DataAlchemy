@@ -42,10 +42,23 @@ Important Files:
     * scored - the score that the user wants
     * year - the year of the movie
   
-  - Get Count Platform:
-  - Get Actor:
-  - Get Prod Per Country:
-  - Get Contents:
+  - Get Count Platform: returns the number of movies in the platform. Parameter:
+    * platform - the platform that has the movie
+    
+  - Get Actor: returns the actor that appears the most by platform and year. Parameter:
+    * platform - the platform that has the movie
+    * year - the year of the movie
+    
+  - Get Prod Per Country: returns the NUMBER of content that was published by country and year. Parameters:
+    * types - the type, movie or tv show
+    * country - the country that the user wants
+    * year - the year
+    
+  - Get Contents: returns the total NUMBER of content according to the given audience rating. Parameters:
+    * rating - the rating of the given audience
+
+  - Get Recommendation: returns a list of 5 similar movies according to the one that the user inputs. Parameters:
+    * title - the title of the movie
 
 ## 4. Exploratory Data Analisys [EDA]
  Investigate the relationships between the variables of the datasets, see if there are any outliers or anomalies (which do not necessarily have to be errors), and look for any interesting patterns that are worth exploring in a further analysis.
