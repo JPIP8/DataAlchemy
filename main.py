@@ -415,66 +415,86 @@ print(get_contents('g'))
 # list with 5 values will be returned, each being the string of the name of the movies with the highest score,
 # in descending order.
 
-# Simplifying the dataset
-f = ['listed_in', 'director', 'cast', 'description', 'title']
-df_filters = df[f].copy()
+# # Simplifying the dataset
+# f = ['listed_in', 'director', 'cast', 'description', 'title']
+# df_filters = df[f].copy()
 
-df_filters.head(3)
+# # Cleaning the data once more
 
-
-# I am going to create a "soup" with all the information to later analyze it.
-
-def create_soup(info):
-    return info['director'] + ' ' + info['cast'] + ' ' + info['listed_in'] + ' ' + info['description']
-
-# Creating a column name 'soup' that will have all the info
-df_filters['soup'] = df_filters.apply(create_soup, axis = 1)
-
-df_filters.head()
+# def cleanD(data):
+#     data = str(data).lower().replace(" ", "")
+#     return data
 
 
-# Similar steps from the last recommendation engine, but slightly different
-
-# Importing useful libraries
-from sklearn.feature_extraction.text import CountVectorizer
-
-# Creating the matrix
-count = CountVectorizer(stop_words = 'english')
-count_matrix = count.fit_transform(df_filters.soup)
-
-print(f"{count_matrix.shape} is the shape of matrix.")
+# for feature in f:
+#     df_filters[feature] = df_filters[feature].apply(cleanD)
 
 
-# Compute the similarities
-# IMport libraries
-
-from sklearn.metrics.pairwise import cosine_similarity
-
-accurate_cosine_sim = cosine_similarity(count_matrix, count_matrix)
-
-df_filters.head()
+# df_filters.head(3)
 
 
-# Reset the index for future
-df_filters = df_filters.reset_index()
-indx = pd.Series(df_filters.index, index = df_filters.title)
+# # I am going to create a "soup" with all the information to later analyze it.
 
-@app.get("/get_recommendation/{title}")
-def get_recommendation(title: str, cosine_sim = accurate_cosine_sim):
-    idx = indx[title]
-    # Creating score for similar movies
-    similarScores = list(enumerate(cosine_sim[idx]))
+# # def create_soup(info):
+# #     return info['director'] + ' ' + info['cast'] + ' ' + info['listed_in'] + ' ' + info['description']
 
-    # Sorting that score
-    similarScores = sorted(similarScores, key = lambda x : x[1], reverse = True)
+# def create_soup(info):
+#     return str(info['director']) + ' ' + str(info['cast']) + ' ' + str(info['listed_in']) + ' ' + str(info['description']) #CHPT
 
-    # Taking the score of the first 5 movies
-    similarScores = similarScores[1:6]
 
-    # Finding the index from those movies
-    movieIndex = [i[0] for i in similarScores]
+# # Creating a column name 'soup' that will have all the info
+# df_filters['soup'] = df_filters.apply(create_soup, axis = 1)
 
-    recommendationTitles =  df.title.iloc[movieIndex]
+# df_filters.head()
 
-    return {"recommendation" : recommendationTitles}
+
+# # Similar steps from the last recommendation engine, but slightly different
+
+# # Importing useful libraries
+# from sklearn.feature_extraction.text import CountVectorizer
+
+# # Creating the matrix
+# count = CountVectorizer(stop_words = 'english')
+# count_matrix = count.fit_transform(df_filters.soup)
+
+# print(f"{count_matrix.shape} is the shape of matrix.")
+
+
+# # Compute the similarities
+# # IMport libraries
+
+# from sklearn.metrics.pairwise import cosine_similarity
+
+# accurate_cosine_sim = cosine_similarity(count_matrix, count_matrix)
+
+# df_filters.head()
+
+
+# # Reset the index for future
+# df_filters = df_filters.reset_index()
+# indx = pd.Series(df_filters.index, index = df_filters.title)
+
+# @app.get("/get_recommendation/{title}")
+# def get_recommendation(title: str, cosine_sim = accurate_cosine_sim):
+#     idx = indx[title]
+#     # Creating score for similar movies
+#     similarScores = list(enumerate(cosine_sim[idx]))
+
+#     # Sorting that score
+#     similarScores = sorted(similarScores, key = lambda x : x[1], reverse = True)
+
+#     # Taking the score of the first 5 movies
+#     similarScores = similarScores[1:6]
+
+#     # Finding the index from those movies
+#     movieIndex = [i[0] for i in similarScores]
+
+#     recommendationTitles =  df.title.iloc[movieIndex]
+#     recommendationTitles = recommendationTitles.tolist()
+
+#     # type(recommendationTitles)
+
+#     return {"recommendation" : recommendationTitles}
+
+# print(get_recommendation('xxx'))
 
