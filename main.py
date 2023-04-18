@@ -46,7 +46,7 @@ app = FastAPI()
 
 @app.get("/get_max_duration/{year}/{platform}/{duration_type}")
 def get_max_duration(year: int, platform: str, duration_type: str):
-# def get_max_duration(year: int, platform: str, duration_type: str):
+
     # Setting variables to lowercase
     platform = platform.lower()
     duration_type = duration_type.lower()
@@ -124,7 +124,6 @@ print(test)
 
 @app.get("/get_score_count/{platform}/{scored}/{year}")
 def get_score_count(platform: str, scored: float, year: int):
-# def get_score_count(platform: str, scored: float, year: int):
 
     # Error proof for user input - platform
     platform = platform.lower()
@@ -184,7 +183,6 @@ def get_score_count(platform: str, scored: float, year: int):
     get_score_count = mask_score_platform_year.title.count()
     get_score_count = int(get_score_count)
 
-    # df_outer.info()
     mask_score_platform_year.head(3)
 
     return {
@@ -208,7 +206,6 @@ print(get_score_count('amaZon', 3.6, 2014))
 
 @app.get("/get_count_platform/{platform}")
 def get_count_platform(platform: str):
-# def get_count_platform(platform: str):
     
     # This is an if statement for the user input variable [platform] transformation and for catching some potential errors.
     platform = platform.lower()
@@ -255,7 +252,6 @@ print(get_count_platform('az'))
 
 @app.get("/get_actor/{platform}/{year}")
 def get_actor(platform: str, year: int):
-# def get_actor(platform: str, year: int):
     
     # This is an if statement for the user input variable [platform] transformation and for catching some potential errors.
     platform = platform.lower()
@@ -332,7 +328,6 @@ print(get_actor('amazon', 2014))
 
 @app.get("/prod_per_country/{types}/{country}/{year}")
 def prod_per_country(types: str, country: str, year: int):
-# def prod_per_country(types: str, country: str, year: int):
 
     # Error proof for user input - country
     c = country.lower()
@@ -341,7 +336,7 @@ def prod_per_country(types: str, country: str, year: int):
     # Error proof for user input - type
     types = types.lower()
 
-    if types in ['movie', 'mov', 'm', 'pelicula', 'peli']:
+    if types in ['movie', 'movies', 'mov', 'm', 'pelicula', 'peli']:
         t = 'movie'
     elif types in ['tv show', 'tvshow', 'show', 'tv', 'series', 'season', 's']:
         t = 'tv show'
@@ -372,9 +367,7 @@ def prod_per_country(types: str, country: str, year: int):
     # Filtering by the user input - type
     mask_country_type_year = mask_country_type[mask_country_type['release_year'] == y]
 
-    # mask_country_type_year = mask_country_type_year.type.country.release_year
 
-    # prod_per_country = mask_country_type_year[['type', 'country', 'release_year']].reset_index(drop=True).to_dict('index')
 
     prod_per_country = mask_country_type_year[['type', 'country', 'release_year']].reset_index(drop=True)
     count_type = int(prod_per_country.type.count())
@@ -399,8 +392,6 @@ print(prod_per_country('movie', 'indi', 2021))
 @app.get("/get_contents/{rating}")
 def get_contents(rating: str):
 
-# def get_contents(rating: str):
-
     # Creating a filter for the different RATING that the user might set as an input.
     mask_rating = df[df['rating'].str.contains(rating, na = False)].copy()
 
@@ -415,4 +406,75 @@ def get_contents(rating: str):
 print(get_contents('g'))
 
 
+# ############################################################################
+# ######################## 7. get_recommendation  ############################
+# ############################################################################
+
+# 7. This consists of recommending movies to the users based on similar movies, so the similarity score between
+# that movie and the rest of the movies must be found. They will be ordered according to the score and a Python
+# list with 5 values will be returned, each being the string of the name of the movies with the highest score,
+# in descending order.
+
+# Simplifying the dataset
+f = ['listed_in', 'director', 'cast', 'description', 'title']
+df_filters = df[f].copy()
+
+df_filters.head(3)
+
+
+# I am going to create a "soup" with all the information to later analyze it.
+
+def create_soup(info):
+    return info['director'] + ' ' + info['cast'] + ' ' + info['listed_in'] + ' ' + info['description']
+
+# Creating a column name 'soup' that will have all the info
+df_filters['soup'] = df_filters.apply(create_soup, axis = 1)
+
+df_filters.head()
+
+
+# Similar steps from the last recommendation engine, but slightly different
+
+# Importing useful libraries
+from sklearn.feature_extraction.text import CountVectorizer
+
+# Creating the matrix
+count = CountVectorizer(stop_words = 'english')
+count_matrix = count.fit_transform(df_filters.soup)
+
+print(f"{count_matrix.shape} is the shape of matrix.")
+
+
+# Compute the similarities
+# IMport libraries
+
+from sklearn.metrics.pairwise import cosine_similarity
+
+accurate_cosine_sim = cosine_similarity(count_matrix, count_matrix)
+
+df_filters.head()
+
+
+# Reset the index for future
+df_filters = df_filters.reset_index()
+indx = pd.Series(df_filters.index, index = df_filters.title)
+
+@app.get("/get_recommendation/{title}")
+def get_recommendation(title: str, cosine_sim = accurate_cosine_sim):
+    idx = indx[title]
+    # Creating score for similar movies
+    similarScores = list(enumerate(cosine_sim[idx]))
+
+    # Sorting that score
+    similarScores = sorted(similarScores, key = lambda x : x[1], reverse = True)
+
+    # Taking the score of the first 5 movies
+    similarScores = similarScores[1:6]
+
+    # Finding the index from those movies
+    movieIndex = [i[0] for i in similarScores]
+
+    recommendationTitles =  df.title.iloc[movieIndex]
+
+    return {"recommendation" : recommendationTitles}
 
