@@ -1,6 +1,9 @@
 # DataAlchemy
 Project involving Data Engineering, Data Science, and Machine Learning.
 
+ABOUT:
+This project is a captivating endeavor that encompasses a range of critical processes, including ETL, exploratory analysis, and machine learning. Our primary objective is to build a sophisticated recommendation engine that caters to the unique movie preferences of individual users. By leveraging cutting-edge technologies, we aim to deliver a streamlined user experience that is intuitive, efficient, and highly effective. Upon inputting a selected movie, our recommendation engine will return a carefully curated list of five films that are exceptionally similar to the one provided by the user.
+
 Important Files:
  - ETL.py: Cleanning process of the data.
  - P00.ipynb: The complete proyect in a jupyter notebook. It is more friendly to read.
